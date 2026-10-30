@@ -1,0 +1,49 @@
+---
+layout: runbook
+title: '#4471 · two date causes in day-first locales'
+owner: support desk
+status: known
+reviewed: 2026-10-30
+signature: pawelrychlicki
+---
+
+<script>
+  import CauseTable from '#lib/kb/CauseTable.svelte';
+  import QueueTimeline from '#lib/kb/QueueTimeline.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+</script>
+
+The export has 427 rows and 412 unique report IDs merged into #4471. It shows two distinct cause groups, not one parser bug. The table deduplicates overlapping rows by report ID and assigns causes from tenant locale, booking form, and report channel—not `meta.intakeTag`.
+
+## Shared parser reads day-first dates as month-first
+
+For tenants whose locale writes the day before the month, the shared parser can flip day and month. This group covers 379 reports across 11 tenants: 204 app, 150 email, and 25 form reports. Track it separately from booking-v3 form reports.
+
+[Issue #1 — shared parser (379 reports)](https://github.com/pawelrychlicki/megadev/issues/1).
+
+## booking-v3 gives day-first tenants a month-first hint
+
+The booking-v3 form displays `MM/DD/YYYY`, while the affected tenants use day-first locales. This separate group covers 33 form reports: `alder.physio` (12), `copper.studio` (11), and `pale.harbour` (10).
+
+[Issue #2 — booking-v3 hint (33 reports)](https://github.com/pawelrychlicki/megadev/issues/2).
+
+<CauseTable
+  ticket={4471}
+  trackedIssues={{
+    parser: { number: 1, href: 'https://github.com/pawelrychlicki/megadev/issues/1' },
+    hint: { number: 2, href: 'https://github.com/pawelrychlicki/megadev/issues/2' },
+  }}
+/>
+
+<Callout kind="warn">
+  The desk flags one-day-move reports. The current tenant-based model keeps them in the parser group, but their symptoms alone do not prove the same root cause. Verify them separately before treating them as resolved by a parser fix.
+</Callout>
+
+## Since April
+
+<QueueTimeline ticket={4471} />
+
+`meta.intakeTag` is an intake guess, not the cause. These counts describe this export snapshot; the desk may receive more reports while work continues.
+
+<RenderStamp {signature} />
