@@ -2,7 +2,7 @@
 layout: runbook
 title: '#4471 · two date causes in day-first locales'
 owner: support desk
-status: known
+status: closed
 reviewed: 2026-10-30
 signature: pawelrychlicki
 ---
@@ -16,17 +16,21 @@ signature: pawelrychlicki
 
 The export has 427 rows and 412 unique report IDs merged into #4471. It shows two distinct cause groups, not one parser bug. The table deduplicates overlapping rows by report ID and assigns causes from tenant locale, booking form, and report channel—not `meta.intakeTag`.
 
-## Shared parser reads day-first dates as month-first
+The desk closed #4471 on 5 October. Its update says the shared parser was fixed with `fix(dates): parse dd/mm for eu locales`; the separate booking-v3 hint issue is Won't Fix because the form was retired.
+
+## Shared parser reads day-first dates as month-first — fixed
 
 For tenants whose locale writes the day before the month, the shared parser can flip day and month. This group covers 379 reports across 11 tenants: 204 app, 150 email, and 25 form reports. Track it separately from booking-v3 form reports.
 
-[Issue #1 — shared parser (379 reports)](https://github.com/pawelrychlicki/megadev/issues/1).
+[Issue #1 — shared parser (379 reports; fixed)](https://github.com/pawelrychlicki/megadev/issues/1).
 
-## booking-v3 gives day-first tenants a month-first hint
+## booking-v3 gives day-first tenants a month-first hint — won't fix
 
 The booking-v3 form displays `MM/DD/YYYY`, while the affected tenants use day-first locales. This separate group covers 33 form reports: `alder.physio` (12), `copper.studio` (11), and `pale.harbour` (10).
 
-[Issue #2 — booking-v3 hint (33 reports)](https://github.com/pawelrychlicki/megadev/issues/2).
+The desk retired booking-v3, so it will not implement this fix. Keep these 33 reports documented, but do not count them as fixed by the shared parser change.
+
+[Issue #2 — booking-v3 hint (33 reports; Won't Fix)](https://github.com/pawelrychlicki/megadev/issues/2).
 
 <CauseTable
   ticket={4471}
@@ -44,6 +48,6 @@ The booking-v3 form displays `MM/DD/YYYY`, while the affected tenants use day-fi
 
 <QueueTimeline ticket={4471} />
 
-`meta.intakeTag` is an intake guess, not the cause. These counts describe this export snapshot; the desk may receive more reports while work continues.
+`meta.intakeTag` is an intake guess, not the cause. These counts describe this export snapshot; #4471 closed on 5 October, so later reports may sit outside this ticket.
 
 <RenderStamp {signature} />
